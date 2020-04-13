@@ -3,3 +3,7 @@ requires = ["setuptools>=42", "wheel", "setuptools_scm[toml]>=3.4"]
 
 # enable versionning with setuptools_scm
 [tool.setuptools_scm]
+
+
+[tool.black]
+line-length = 79
