@@ -30,11 +30,9 @@ def test_graph_pipeline():
 
 
 def test_graph_pipeline_column_transformer():
+    pipe_0 = make_pipeline(MinMaxScaler())
     pipe = make_pipeline(
-        make_column_transformer(
-            (StandardScaler(), [0, 1]),
-            (make_pipeline(MinMaxScaler()), [2, 3]),
-        ),
+        make_column_transformer((StandardScaler(), [0, 1]), (pipe_0, [2, 3]),),
         LogisticRegression(max_iter=7),
     )
 
@@ -44,6 +42,17 @@ def test_graph_pipeline_column_transformer():
     assert graph_flat_str == [
         (0, "Pipeline 0 / 2"),
         (1, "ColumnTransformer 0 / 2"),
+        (2, "StandardScaler 0 / 1"),
+        (2, "Pipeline 0 / 1"),
+        (3, "MinMaxScaler 0 / 1"),
+        (1, "LogisticRegression 0 / 7"),
+    ]
+    graph.update_state(pipe_0)
+
+    graph_flat_str = [(node.depth, str(node)) for node in graph]
+    assert graph_flat_str == [
+        (0, "Pipeline 0 / 2"),
+        (1, "ColumnTransformer 1 / 2"),  # parent progress changed
         (2, "StandardScaler 0 / 1"),
         (2, "Pipeline 0 / 1"),
         (3, "MinMaxScaler 0 / 1"),

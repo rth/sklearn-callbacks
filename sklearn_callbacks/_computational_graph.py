@@ -115,6 +115,7 @@ class ComputeGraph(Iterator):
     def __init__(self, root: ComputeNode):
         self.root_node = root
         self.current_node = root
+        self._id_map = {node._id: node for node in self}
 
     @classmethod
     def from_estimator(cls, estimator, max_depth=-1):
@@ -147,3 +148,26 @@ class ComputeGraph(Iterator):
 
     def __len__(self):
         return len([None for el in self])
+
+    def update_state(self, estimator):
+        """Set the next active state
+        
+        All earlier node are assumed to be computed, but only
+        parent n_iter is properly updated.
+        """
+        node = self._id_map.get(id(estimator), None)
+        name = estimator.__class__.__name__
+        if node is None:
+            next_node = self.current_node.next()
+            if self.current_node.name == name:
+                return
+            elif next_node.name == name:
+                node = next_node
+            else:
+                raise ValueError(f"Could not identify state for {estimator}")
+
+        self.current_node = node
+        # update parent progress
+        if node.parent is not None:
+            idx = node.parent.children.index(node)
+            node.parent.n_iter = idx
