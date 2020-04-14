@@ -3,7 +3,7 @@ version: 2
 jobs:
   python37:
     docker:
-      - image: circleci/python:3.7.3-stretch
+      - image: circleci/python:3.8.2-stretch
     environment:
       - OMP_NUM_THREADS: 2
       - MKL_NUM_THREADS: 2
@@ -18,7 +18,6 @@ jobs:
             - ccache
       - run: |
           set -ex
-          pip install --upgrade pip
           pip install -q numpy scipy pandas matplotlib pytest
           pip install https://github.com/rth/scikit-learn/archive/progress-bar.zip
           pip install -e .
