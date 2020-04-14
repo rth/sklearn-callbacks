@@ -1,5 +1,3 @@
-from time import sleep
-
 from sklearn._callbacks import BaseCallback
 
 from ._computational_graph import ComputeGraph
