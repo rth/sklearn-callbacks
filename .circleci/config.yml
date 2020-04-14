@@ -1,0 +1,62 @@
+version: 2
+
+jobs:
+  python38:
+    docker:
+      - image: circleci/python:3.8.2-buster
+    environment:
+      - OMP_NUM_THREADS: 2
+      - MKL_NUM_THREADS: 2
+    steps:
+      - checkout
+      - restore_cache:
+          keys:
+            - ccache-{{ .Branch }}
+            - ccache
+      - run: |
+          set -ex
+          python -m venv ./venv
+          source ./venv/bin/activate
+          pip install -q numpy scipy pandas matplotlib pytest
+          pip install https://github.com/rth/scikit-learn/archive/progress-bar.zip
+      - save_cache:
+          key: ccache-{{ .Branch }}-{{ .BuildNum }}
+          paths:
+            - ~/.ccache
+            - ~/.cache/pip
+      - run: |
+          source ./venv/bin/activate
+          pip install -e .
+      - run: |
+          set -ex
+          source ./venv/bin/activate
+          pytest sklearn_callbacks/
+
+  lint:
+    docker:
+      - image: circleci/python:3.7
+    steps:
+      - checkout
+      - run:
+          name: dependencies
+          command: sudo pip install flake8 mypy black
+
+      - run:
+          name: black
+          command: black --check
+
+      - run:
+          name: flake8
+          command: flake8 --select=F401,F405
+
+      - run:
+          name: mypy
+          command: mypy --ignore-missing-imports sklearn_callbacks
+
+
+workflows:
+  version: 2
+  build-and-test:
+    jobs:
+      - lint
+      - python38

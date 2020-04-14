@@ -1,11 +1,8 @@
 import warnings
-import re
 
-from sklearn.linear_model import Ridge
 from sklearn.datasets import load_iris
-from sklearn.linear_model import LogisticRegression
 from sklearn.exceptions import ConvergenceWarning
-
+from sklearn.linear_model import LogisticRegression
 from sklearn_callbacks import DebugCallback
 
 

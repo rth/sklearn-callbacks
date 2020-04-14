@@ -25,3 +25,7 @@ repos:
           - --follow-imports
           - skip
         files: sklearn_callbacks/
+-   repo: https://github.com/pre-commit/mirrors-isort
+    rev: v4.3.21
+    hooks:
+    -   id: isort

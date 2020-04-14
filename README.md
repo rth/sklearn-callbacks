@@ -1,4 +1,7 @@
 # sklearn-callbacks
+
+[![CircleCI](https://circleci.com/gh/rth/sklearn-callbacks.svg?style=svg)](https://circleci.com/gh/rth/sklearn-callbacks)
+
 Experimental callbacks for scikit-learn: progress bars, monitoring convergence etc.
 
 ## Install
