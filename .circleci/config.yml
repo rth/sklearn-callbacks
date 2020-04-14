@@ -7,9 +7,6 @@ jobs:
     environment:
       - OMP_NUM_THREADS: 2
       - MKL_NUM_THREADS: 2
-      - MINICONDA_PATH: ~/miniconda
-      - CONDA_ENV_NAME: testenv
-      - PYTHON_VERSION: 3
     steps:
       - checkout
       - restore_cache:
@@ -18,19 +15,22 @@ jobs:
             - ccache
       - run: |
           set -ex
+          python -m venv
+          source ./venv/bin/activate
           pip install -q numpy scipy pandas matplotlib pytest
           pip install https://github.com/rth/scikit-learn/archive/progress-bar.zip
-          pip install --user -e .
-      - run: pytest sklearn_callbacks/
       - save_cache:
           key: ccache-{{ .Branch }}-{{ .BuildNum }}
           paths:
             - ~/.ccache
             - ~/.cache/pip
-      - save_cache:
-          key: v1-datasets-{{ .Branch }}
-          paths:
-            - ~/scikit_learn_data
+      - run: |
+          source ./venv/bin/activate
+          python -m pip install --user -e .
+      - run: |
+          set -ex
+          source ./venv/bin/activate
+          pytest sklearn_callbacks/
 
   lint:
     docker:
