@@ -1,31 +1,111 @@
+from time import sleep
+
 from sklearn._callbacks import BaseCallback
+
+from ._computational_graph import ComputeGraph
+
+
+class TqdmPbar:
+    def __init__(self, name, **kwargs):
+        from tqdm.auto import tqdm
+
+        self.pbar = tqdm(**kwargs)
+        self.n_iter = 0
+        self.name = name
+
+    def update(self, node, n_iter=None, **kwargs):
+        desc = node.name
+        if "loss" in kwargs:
+            desc += f", loss={kwargs['loss']:8g}"
+        elif "score" in kwargs:
+            desc += f", score={kwargs['score']:.4f}"
+        if desc is not None:
+            self.pbar.set_description(desc)
+        if n_iter is None:
+            n_iter = node.n_iter
+        self.pbar.update(max(n_iter - self.n_iter, 0))
+        self.n_iter = max(n_iter, self.n_iter)
+
+    def close(self):
+        self.pbar.close()
+
+
+def _get_node_at_depth(node_init, depth=1):
+    if depth > node_init.depth:
+        raise ValueError
+
+    node = node_init
+    while True:
+        node_depth = node.depth
+        if node_depth == 1:
+            return node
+        node = node.parent
 
 
 class ProgressBar(BaseCallback):
     def __init__(self):
         self.pbar = None
+        self.pbar2 = None
+        self.compute_graph = None
 
     def fit(self, estimator, X, y):
-        self.estimator = estimator
-        max_iter = estimator.get_params().get("max_iter", None)
-        if max_iter is not None:
-            self.max_iter = max_iter
+        if self.compute_graph is None:
+            # assume this first call was made from the root node.
+            self.compute_graph = ComputeGraph.from_estimator(estimator)
+        self.compute_graph.update_state(estimator)
+        root = self.compute_graph.root_node
+        if self.pbar is None:
+            self.pbar = TqdmPbar(
+                total=root.n_steps, name=root.name, desc=root.name, leave=False
+            )
+        self.pbar.update(root)
+        current_node = self.compute_graph.current_node
+        if current_node.depth >= 1:
+            node = _get_node_at_depth(current_node, depth=1)
+
+            if self.pbar2 is not None and self.pbar2.name != node.name:
+                self.pbar2.close()
+
+            if self.pbar2 is None:
+                self.pbar2 = TqdmPbar(
+                    total=node.n_steps,
+                    name=node.name,
+                    desc=node.name,
+                    leave=False,
+                )
+
+            self.pbar2.update(node)
+
+        else:
+            if self.pbar2 is not None:
+                self.pbar2.close()
 
     def __call__(self, **kwargs):
-        from tqdm.auto import tqdm
+        self.compute_graph.current_node.n_iter += 1
 
-        if hasattr(self, "max_iter"):
-            max_iter = self.max_iter
-        if "max_iter" in kwargs:
-            max_iter = kwargs["max_iter"]
+        root = self.compute_graph.root_node
 
-        desc = self.estimator.__class__.__name__
-        if "loss" in kwargs:
-            desc += f", loss={kwargs['loss']:8g}"
-        elif "score" in kwargs:
-            desc += f", score={kwargs['score']:.4f}"
+        self.pbar.update(root, **kwargs)
 
-        if self.pbar is None:
-            self.pbar = tqdm(total=max_iter, desc=desc)
-        self.pbar.set_description(desc)
-        self.pbar.update(1)
+        current_node = self.compute_graph.current_node
+        if current_node.depth >= 1 and self.pbar2 is not None:
+            node = _get_node_at_depth(current_node, depth=1)
+            self.pbar2.update(node, **kwargs)
+
+    def __enter__(self):
+        """Progress bar can be used optionally as a context manager"""
+        return self
+
+    def __exit__(self, type, value, traceback):
+        """Close all progress bars at exit"""
+        root = self.compute_graph.root_node
+        if (root.n_steps - root.n_steps) == 1:
+            # one step missing from the end (e.g. pipeline)
+            root.n_iter += 1
+            self.pbar.update(root)
+            sleep(0.2)
+
+        if self.pbar is not None:
+            self.pbar.close()
+        if self.pbar2 is not None:
+            self.pbar2.close()

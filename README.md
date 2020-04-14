@@ -14,7 +14,7 @@ pip install git+https://github.com/rth/sklearn-callbacks.git
 ### Progress bars
 
 ```
-from sklearn.linear_model import 
+from sklearn.linear_model import
 from sklearn_callbacks import ProgressBar
 ```
 

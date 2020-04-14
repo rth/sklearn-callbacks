@@ -151,7 +151,7 @@ class ComputeGraph(Iterator):
 
     def update_state(self, estimator):
         """Set the next active state
-        
+
         All earlier node are assumed to be computed, but only
         parent n_iter is properly updated.
         """

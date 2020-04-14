@@ -21,7 +21,7 @@ class DebugCallback(BaseCallback):
 
     def check_log_expected(self, log: List[str]):
         """Check that the recored log matches expected values
-        
+
         Parameters
         ----------
         log
