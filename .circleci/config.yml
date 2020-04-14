@@ -12,7 +12,6 @@ jobs:
       - PYTHON_VERSION: 3
     steps:
       - checkout
-      - run: ./build_tools/circle/checkout_merge_commit.sh
       - restore_cache:
           keys:
             - ccache-{{ .Branch }}
@@ -38,7 +37,6 @@ jobs:
       - image: circleci/python:3.6
     steps:
       - checkout
-      - run: ./build_tools/circle/checkout_merge_commit.sh
       - run:
           name: dependencies
           command: sudo pip install flake8 mypy black
