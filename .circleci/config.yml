@@ -1,0 +1,66 @@
+version: 2
+
+jobs:
+  python:
+    docker:
+      - image: circleci/python:3.7.3-stretch
+    environment:
+      - OMP_NUM_THREADS: 2
+      - MKL_NUM_THREADS: 2
+      - MINICONDA_PATH: ~/miniconda
+      - CONDA_ENV_NAME: testenv
+      - PYTHON_VERSION: 3
+    steps:
+      - checkout
+      - run: ./build_tools/circle/checkout_merge_commit.sh
+      - restore_cache:
+          keys:
+            - ccache-{{ .Branch }}
+            - ccache
+      - run: |
+          set -ex
+          pip install numpy scipy pandas matploltib pytest
+          pip install https://github.com/rth/scikit-learn/archive/progress-bar.zip
+          pip install -e .
+      - run: pytest sklearn_callbacks/
+      - save_cache:
+          key: ccache-{{ .Branch }}-{{ .BuildNum }}
+          paths:
+            - ~/.ccache
+            - ~/.cache/pip
+      - save_cache:
+          key: v1-datasets-{{ .Branch }}
+          paths:
+            - ~/scikit_learn_data
+
+  lint:
+    docker:
+      - image: circleci/python:3.6
+    steps:
+      - checkout
+      - run: ./build_tools/circle/checkout_merge_commit.sh
+      - run:
+          name: dependencies
+          command: sudo pip install flake8 mypy black
+
+      - run:
+          name: black
+          command: black --check
+
+      - run:
+          name: flake8
+          command: flake8 --select=F401,F405
+
+      - run:
+          name: mypy
+          command: mypy --ignore-missing-imports sklearn_callbacks
+
+
+
+
+workflows:
+  version: 2
+  build-doc-and-deploy:
+    jobs:
+      - lint
+      - python3:
