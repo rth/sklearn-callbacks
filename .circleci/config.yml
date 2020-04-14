@@ -15,7 +15,7 @@ jobs:
             - ccache
       - run: |
           set -ex
-          python -m venv
+          python -m venv ./venv
           source ./venv/bin/activate
           pip install -q numpy scipy pandas matplotlib pytest
           pip install https://github.com/rth/scikit-learn/archive/progress-bar.zip
