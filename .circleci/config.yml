@@ -20,7 +20,7 @@ jobs:
           set -ex
           pip install -q numpy scipy pandas matplotlib pytest
           pip install https://github.com/rth/scikit-learn/archive/progress-bar.zip
-          pip install -e .
+          pip install --user -e .
       - run: pytest sklearn_callbacks/
       - save_cache:
           key: ccache-{{ .Branch }}-{{ .BuildNum }}
