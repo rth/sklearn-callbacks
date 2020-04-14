@@ -9,5 +9,6 @@ except DistributionNotFound:
 
 from ._debug import DebugCallback
 from ._progressbar import ProgressBar
+from ._convergence_monitor import ConvergenceMonitor
 
-__all__ = ["DebugCallback", "ProgressBar"]
+__all__ = ["DebugCallback", "ProgressBar", "ConvergenceMonitor"]
