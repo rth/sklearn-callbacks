@@ -56,11 +56,9 @@ jobs:
           command: mypy --ignore-missing-imports sklearn_callbacks
 
 
-
-
 workflows:
   version: 2
-  build-doc-and-deploy:
+  build-and-test:
     jobs:
       - lint
-      - python3:
+      - python3
