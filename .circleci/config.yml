@@ -1,9 +1,9 @@
 version: 2
 
 jobs:
-  python37:
+  python38:
     docker:
-      - image: circleci/python:3.8.2-stretch
+      - image: circleci/python:3.8.2-buster
     environment:
       - OMP_NUM_THREADS: 2
       - MKL_NUM_THREADS: 2
@@ -59,4 +59,4 @@ workflows:
   build-and-test:
     jobs:
       - lint
-      - python37
+      - python38
