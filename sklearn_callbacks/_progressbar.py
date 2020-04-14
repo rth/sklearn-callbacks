@@ -10,6 +10,7 @@ class TqdmPbar:
         from tqdm.auto import tqdm
 
         self.pbar = tqdm(**kwargs)
+        self.n_steps = kwargs.get("total", None)
         self.n_iter = 0
         self.name = name
 
@@ -22,12 +23,17 @@ class TqdmPbar:
         if desc is not None:
             self.pbar.set_description(desc)
         if n_iter is None:
-            n_iter = node.n_iter
+            n_iter = node.n_iter + 1
         self.pbar.update(max(n_iter - self.n_iter, 0))
         self.n_iter = max(n_iter, self.n_iter)
 
     def close(self):
         self.pbar.close()
+
+    def finalize(self):
+        if self.n_steps and not None and self.n_iter < self.n_steps:
+            self.pbar.update(self.n_steps - self.n_iter)
+        return self
 
 
 def _get_node_at_depth(node_init, depth=1):
@@ -64,7 +70,8 @@ class ProgressBar(BaseCallback):
             node = _get_node_at_depth(current_node, depth=1)
 
             if self.pbar2 is not None and self.pbar2.name != node.name:
-                self.pbar2.close()
+                self.pbar2.finalize().close()
+                self.pbar2 = None
 
             if self.pbar2 is None:
                 self.pbar2 = TqdmPbar(
@@ -91,21 +98,3 @@ class ProgressBar(BaseCallback):
         if current_node.depth >= 1 and self.pbar2 is not None:
             node = _get_node_at_depth(current_node, depth=1)
             self.pbar2.update(node, **kwargs)
-
-    def __enter__(self):
-        """Progress bar can be used optionally as a context manager"""
-        return self
-
-    def __exit__(self, type, value, traceback):
-        """Close all progress bars at exit"""
-        root = self.compute_graph.root_node
-        if (root.n_steps - root.n_steps) == 1:
-            # one step missing from the end (e.g. pipeline)
-            root.n_iter += 1
-            self.pbar.update(root)
-            sleep(0.2)
-
-        if self.pbar is not None:
-            self.pbar.close()
-        if self.pbar2 is not None:
-            self.pbar2.close()
