@@ -18,7 +18,8 @@ jobs:
             - ccache
       - run: |
           set -ex
-          pip install numpy scipy pandas matploltib pytest
+          pip install --upgrade pip
+          pip install -q numpy scipy pandas matplotlib pytest
           pip install https://github.com/rth/scikit-learn/archive/progress-bar.zip
           pip install -e .
       - run: pytest sklearn_callbacks/
