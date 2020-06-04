@@ -1,7 +1,6 @@
 import re
 from typing import List
 
-import sklearn
 from sklearn._callbacks import BaseCallback
 
 
@@ -16,8 +15,7 @@ class DebugCallback(BaseCallback):
             print("[DebugCallback] " + msg)
 
     def on_fit_begin(self, estimator, X, y):
-        with sklearn.config_context(print_changed_only=True):
-            self.add_message("fit " + str(estimator))
+        self.add_message("fit_begin " + str(estimator))
 
     def check_log_expected(self, log: List[str]):
         """Check that the recored log matches expected values
@@ -38,5 +36,6 @@ class DebugCallback(BaseCallback):
     def on_iter_end(self, **kwargs):
 
         self.add_message(
-            "call " + ", ".join(f"{key}={val}" for key, val in kwargs.items())
+            "iter_end "
+            + ", ".join(f"{key}={val}" for key, val in kwargs.items())
         )
