@@ -1,4 +1,6 @@
+import logging
 import re
+import sys
 from typing import List
 
 from sklearn._callbacks import BaseCallback
@@ -7,12 +9,20 @@ from sklearn._callbacks import BaseCallback
 class DebugCallback(BaseCallback):
     def __init__(self, verbose=True):
         self.verbose = verbose
+        self.formatter = logging.Formatter(
+            fmt="%(asctime)s %(levelname)-8s %(message)s",
+        )
         self.log = []
+        self.handler = logging.StreamHandler(stream=sys.stdout)
+        self.handler.setFormatter(self.formatter)
+        self.logger = logging.getLogger("sklearn")
+        self.logger.setLevel(logging.DEBUG)
+        self.logger.addHandler(self.handler)
 
     def add_message(self, msg):
         self.log.append(msg)
         if self.verbose:
-            print("[DebugCallback] " + msg)
+            self.logger.info(msg)
 
     def on_fit_begin(self, estimator, X, y):
         self.add_message("fit_begin " + str(estimator))
