@@ -52,7 +52,7 @@ class ProgressBar(BaseCallback):
         self.pbar2 = None
         self.compute_graph = None
 
-    def fit(self, estimator, X, y):
+    def on_fit_begin(self, estimator, X, y):
         if self.compute_graph is None:
             # assume this first call was made from the root node.
             self.compute_graph = ComputeGraph.from_estimator(estimator)
@@ -85,7 +85,7 @@ class ProgressBar(BaseCallback):
             if self.pbar2 is not None:
                 self.pbar2.close()
 
-    def __call__(self, **kwargs):
+    def on_iter_end(self, **kwargs):
         self.compute_graph.current_node.n_iter += 1
 
         root = self.compute_graph.root_node
