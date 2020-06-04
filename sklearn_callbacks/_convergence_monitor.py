@@ -1,8 +1,8 @@
-from typing import List, Dict
+from typing import Dict, List
 
+import sklearn.metrics
 from sklearn._callbacks import BaseCallback
 from sklearn.base import clone
-import sklearn.metrics
 from sklearn.linear_model._base import LinearModel
 
 
@@ -29,7 +29,7 @@ class ConvergenceMonitor(BaseCallback):
         self.X_test = X_test
         self.y_test = y_test
 
-    def fit(self, estimator, X, y):
+    def on_fit_begin(self, estimator, X, y):
         if not isinstance(estimator, LinearModel):
             # not implemented
             return
@@ -39,7 +39,7 @@ class ConvergenceMonitor(BaseCallback):
         # attributes can still be modified in fit
         self.estimator = estimator
 
-    def __call__(self, **kwargs):
+    def on_iter_end(self, **kwargs):
         coef = kwargs.get("coef", None)
         intercept = kwargs.get("intercept", None)
         if coef is None or intercept is None:

@@ -1,8 +1,8 @@
 import re
 from typing import List
 
-from sklearn._callbacks import BaseCallback
 import sklearn
+from sklearn._callbacks import BaseCallback
 
 
 class DebugCallback(BaseCallback):
@@ -15,7 +15,7 @@ class DebugCallback(BaseCallback):
         if self.verbose:
             print("[DebugCallback] " + msg)
 
-    def fit(self, estimator, X, y):
+    def on_fit_begin(self, estimator, X, y):
         with sklearn.config_context(print_changed_only=True):
             self.add_message("fit " + str(estimator))
 
@@ -35,7 +35,7 @@ class DebugCallback(BaseCallback):
                     f"Expected regexp {expected} does not match '{val}'."
                 )
 
-    def __call__(self, **kwargs):
+    def on_iter_end(self, **kwargs):
 
         self.add_message(
             "call " + ", ".join(f"{key}={val}" for key, val in kwargs.items())
