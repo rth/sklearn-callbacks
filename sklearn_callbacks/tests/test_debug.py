@@ -18,9 +18,9 @@ def test_debug_callback():
         est.fit(X, y)
 
     log_expected = [
-        r"fit LogisticRegression\(max_iter=3\)",
-        "call coef=.*",
-        "call coef=.*",
-        "call coef=.*",
+        r"fit_begin LogisticRegression\(max_iter=3\)",
+        "iter_end coef=.*",
+        "iter_end coef=.*",
+        "iter_end coef=.*",
     ]
     callback.check_log_expected(log_expected)

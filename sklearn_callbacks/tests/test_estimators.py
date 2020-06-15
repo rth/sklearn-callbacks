@@ -22,13 +22,13 @@ def test_pipeline():
         pipe.fit(X, y)
 
     log_expected = [
-        "fit Pipeline",
-        "fit StandardScaler",
-        "fit StandardScaler",  # why second time?
-        r"fit LogisticRegression\(max_iter=3\)",
-        "call coef=.*",
-        "call coef=.*",
-        "call coef=.*",
+        "fit_begin Pipeline",
+        "fit_begin StandardScaler",
+        "fit_begin StandardScaler",  # why second time?
+        r"fit_begin LogisticRegression\(max_iter=3\)",
+        "iter_end coef=.*",
+        "iter_end coef=.*",
+        "iter_end coef=.*",
     ]
     callback.check_log_expected(log_expected)
 
@@ -51,14 +51,14 @@ def test_pipeline_column_transformer():
         pipe.fit(X, y)
 
     log_expected = [
-        "fit Pipeline",
-        "fit ColumnTransformer",
-        "fit StandardScaler",
-        "fit StandardScaler",  # why second time?
-        "fit MinMaxScaler",
-        r"fit LogisticRegression\(max_iter=3\)",
-        "call coef=.*",
-        "call coef=.*",
-        "call coef=.*",
+        "fit_begin Pipeline",
+        "fit_begin ColumnTransformer",
+        "fit_begin StandardScaler",
+        "fit_begin StandardScaler",  # why second time?
+        "fit_begin MinMaxScaler",
+        r"fit_begin LogisticRegression\(max_iter=3\)",
+        "iter_end coef=.*",
+        "iter_end coef=.*",
+        "iter_end coef=.*",
     ]
     callback.check_log_expected(log_expected)

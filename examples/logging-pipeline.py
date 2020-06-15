@@ -14,10 +14,11 @@ pipe = make_pipeline(
         (StandardScaler(), slice(0, 80)), (MinMaxScaler(), slice(80, 90)),
     ),
     SGDClassifier(max_iter=20),
+    verbose=1,
 )
 
 
 pbar = DebugCallback()
-pipe._set_callbacks(pbar)
+# pipe._set_callbacks(pbar)
 
 _ = pipe.fit(X, y)
