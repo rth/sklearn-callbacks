@@ -6,7 +6,7 @@ Experimental callbacks for scikit-learn: progress bars, monitoring convergence e
 
 ## Install
 
-This package require a patched scikit-learn 0.23.0dev0,
+This package require a patched scikit-learn 0.24.0dev0 from [scikit-learn#16925](https://github.com/scikit-learn/scikit-learn/pull/16925),
 ```
 pip install https://github.com/rth/scikit-learn/archive/progress-bar.zip
 pip install git+https://github.com/rth/sklearn-callbacks.git
